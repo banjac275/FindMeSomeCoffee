@@ -12,11 +12,11 @@ function getLocation() {
 function showPosition(position) {
     var latlon = { lat: position.coords.latitude, lng: position.coords.longitude};
 
-    document.getElementById('long').value = position.coords.longitude;
-    document.getElementById('latt').value = position.coords.latitude;
+    document.getElementById("latt").innerHTML = "Latitude: "+position.coords.latitude;
+    document.getElementById("long").innerHTML = "Longitude: "+position.coords.longitude;
 
     var map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 16,
+        zoom: 15,
         center: latlon
     });
 
@@ -25,6 +25,14 @@ function showPosition(position) {
         map: map
     });
 
+    var circle = new google.maps.Circle({
+        map: map,
+        radius: 1000,    // 10 miles in metres
+        fillColor: '#B5F3FF'
+    });
+    circle.bindTo('center', marker, 'position');
+    var val = position.coords.latitude+","+position.coords.longitude;
+    getCaffeeInfo(val);
 }
 function showError(error) {
     switch(error.code) {
@@ -45,6 +53,29 @@ function showError(error) {
             alert(x);
             break;
     }
+}
+
+function lat(callback) {
+    navigator.geolocation.getCurrentPosition(function (position) {
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        callback.call(null, lat, lon);
+    }, function (error) {
+        console.log("Something went wrong: ", error);
+    });
+}
+
+function getPosition(check) {
+    lat(function (latitude, longitude) {
+        document.getElementById("latt").innerHTML = "Latitude: "+latitude;
+        document.getElementById("long").innerHTML = "Longitude: "+longitude;
+        var theDate = Date.now();
+        var dateString = theDate.toUTCString();
+        document.getElementById("upd").innerHTML = dateString;
+        //alert("lat: " + latitude + ", lon: " + longitude);
+        var val = latitude+","+longitude;
+        getCaffeeInfo(val, check);
+    });
 }
 
 //sidebar
@@ -78,53 +109,27 @@ function detachElements() {
 }
 
 //foursquare
-function initGeolocation()
-{
-    if( navigator.geolocation )
-    {
-        // Call getCurrentPosition with success and failure callbacks
-        navigator.geolocation.getCurrentPosition( success, fail );
-    }
-    else
-    {
-        alert("Sorry, your browser does not support geolocation services.");
-    }
+function getDistance(lat, long) {
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            var latLngA = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+            var latLngB = new google.maps.LatLng(lat, long);
+            var distance = google.maps.geometry.spherical.computeDistanceBetween(latLngA, latLngB);
+            return distance;
+        },
+        function() {
+            alert("geolocation not supported!!");
+        }
+    );
 }
 
-function success(position)
-{
-    var loc = position.coords.longitude+","+position.coords.latitude;
-    return loc;
-}
-
-function fail(data)
-{
-    alert(data);
-}
-
-function getCaffeeInfo(){
+function getCaffeeInfo(latlon, check){
     var priceEnable = 0;
     var distanceEnable = false;
-    var clientID = 'P2LDTZ2GOGLQXZ1C2O1MI03NWHY52GHWU3VXUNY14AO4YWXU';
-    var clientSecret = 'D5KF5OSHQSN1425KTQVILFPURTAKPH31TFEDXTHUUAF5ITB0';
-    var dateObj= new Date();
-    var month = dateObj.getUTCMonth() + 1;
-    var day = dateObj.getUTCDate();
-    var year = dateObj.getUTCFullYear();
-    var newDate = year + month + day;
-    var base_url = 'https://api.foursquare.com/v2/';
-    var end_point_search = 'venues/search?';
-    var end_point_explore = 'venues/explore?';
-    var radius = 1000;
-    var userLoc = initGeolocation();
-    var limit = 10;
-    var intent = "browse";
-    var category = "4bf58dd8d48988d1e0931735";
-    var openNow = 1;
-    var distanceSort = 1;
-    var section = "coffee";
-    var auth = "client_id="+clientID+"&client_secret="+clientSecret+"&v="+newDate;
-    var url, result, jdata;
+
+    document.getElementById("dist").checked = check;
+    //var userLoc = latlon;
+
     if(document.getElementById("pric").checked == true)
     {
         document.getElementById("priceval").style.visibility = 'visible';
@@ -146,20 +151,38 @@ function getCaffeeInfo(){
         distanceEnable = false;
     }
 
-    if(priceEnable == 0 && distanceEnable == false){
-        url = base_url+end_point_explore+auth+"&ll="+userLoc+"&radius="+radius+"&limit="+limit+"&section="+section+"&openNow="+openNow;
-    }else if(priceEnable != 0 && distanceEnable == false){
-        url = base_url+end_point_explore+auth+"&ll="+userLoc+"&radius="+radius+"&limit="+limit+"&section="+section+"&openNow="+openNow+"&price="+priceEnable;
-    }else if(priceEnable == 0 && distanceEnable == true){
-        url = base_url+end_point_explore+auth+"&ll="+userLoc+"&radius="+radius+"&limit="+limit+"&section="+section+"&openNow="+openNow+"&sortByDistance="+distanceSort;
-    }else{
-        url = base_url+end_point_explore+auth+"&ll="+userLoc+"&radius="+radius+"&limit="+limit+"&section="+section+"&openNow="+openNow+"&price="+priceEnable+"&sortByDistance="+distanceSort;
-    }
+    //var locate = userLoc;
 
-    alert(url);
-
-    $.post('php/page.php', { url: url }, function(data) {
-        alert(data);
+    $.post('php/page.php', { distance: distanceEnable, price: priceEnable, position: latlon  }, function(data) {
+        document.getElementById('tab_body').innerHTML = data;
+        //var jsonp = JSON.parse(data);
+        //alert(data);
     });
 }
+
+function calculateAndDisplayRoute(directionsService, directionsDisplay, pointA, pointB) {
+    directionsService.route({
+        origin: pointA,
+        destination: pointB,
+        travelMode: google.maps.TravelMode.DRIVING
+    }, function(response, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+            directionsDisplay.setDirections(response);
+        } else {
+            window.alert('Directions request failed due to ' + status);
+        }
+    });
+}
+
+$(document).ready(function() {
+    getPosition();
+
+    $("#dist").on("click", function(){
+        if(distance.checked) {
+            alert("Checkbox is checked.");
+        } else {
+            alert("Checkbox is unchecked.");
+        }
+    });
+});
 

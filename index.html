@@ -27,7 +27,7 @@
                         <a href="#"><i class="fa fa-gift fa-lg"></i> Sorting options </span></a>
                     </li>
                     <ul class="sub-menu collapse" id="sort">
-                        <li><input id = "dist" type="checkbox" name="distance" onclick="getCaffeeInfo()"/> Distance</li>
+                        <li><input id = "dist" type="checkbox" name="distance" /> Distance</li>
                         <li data-toggle="collapse" data-target="#priceval" class="collapsed"><input id = "pric" type="checkbox" name="price" /> Price</li>
                     </ul>
 
@@ -43,25 +43,35 @@
                         <a href="#"><i class="fa fa-globe fa-lg"></i> Results </span></a>
                     </li>
                     <ul class="sub-menu collapse" id="service">
-                        <li>New Service 1</li>
-                        <li>New Service 2</li>
-                        <li>New Service 3</li>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Picture</th>
+                                    <th>Name</th>
+                                    <th>Distance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tab_body">
+
+                            </tbody>
+                        </table>
                     </ul>
 
-
-                    <li data-toggle="collapse" data-target="#about" class="collapsed">
-                        <a href="#"><i class="fa fa-car fa-lg"></i> About </span></a>
-                    </li>
-                    <ul class="sub-menu collapse" id="about">
-                        <li>New New 1</li>
-                    </ul>
-
-                    <li data-toggle="collapse" data-target="#curloc" class="collapsed">
+                    <li class="collapsed">
                         <a href="#"><i class="fa fa-car fa-lg"></i> Current location </span></a>
                     </li>
                     <ul class="sub-menu collapse show" id="curloc">
                         <li id="latt"></li>
                         <li id="long"></li>
+                        <li id="upd"></li>
+                    </ul>
+
+                    <li data-toggle="collapse" data-target="#about" class="collapsed">
+                        <a href="#"><i class="fa fa-car fa-lg"></i> About </span></a>
+                    </li>
+                    <ul class="sub-menu collapse" id="about">
+                        <li>® Nikola Stevanović, 2017</li>
                     </ul>
 
                 </ul>
