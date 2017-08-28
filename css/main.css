@@ -172,3 +172,11 @@
         display: block;
     }
 }
+
+#priceval{
+    padding-left: 20px;
+}
+
+#loca {
+    height:10%;
+}

@@ -23,31 +23,24 @@
             <div class="menu-list">
 
                 <ul id="menu-content" class="menu-content collapse out">
-                    <li>
-                        <a href="#">
-                            <i class="fa fa-dashboard fa-lg"></i> Dashboard
-                        </a>
+                    <li  data-toggle="collapse" data-target="#sort" class="collapsed active">
+                        <a href="#"><i class="fa fa-gift fa-lg"></i> Sorting options </span></a>
                     </li>
+                    <ul class="sub-menu collapse" id="sort">
+                        <li><input id = "dist" type="checkbox" name="distance" onclick="getCaffeeInfo()"/> Distance</li>
+                        <li data-toggle="collapse" data-target="#priceval" class="collapsed"><input id = "pric" type="checkbox" name="price" /> Price</li>
+                    </ul>
 
-                    <li  data-toggle="collapse" data-target="#products" class="collapsed active">
-                        <a href="#"><i class="fa fa-gift fa-lg"></i> UI Elements <span class="arrow"></span></a>
-                    </li>
-                    <ul class="sub-menu collapse" id="products">
-                        <li class="active"><a href="#">CSS3 Animation</a></li>
-                        <li><a href="#">General</a></li>
-                        <li><a href="#">Buttons</a></li>
-                        <li><a href="#">Tabs & Accordions</a></li>
-                        <li><a href="#">Typography</a></li>
-                        <li><a href="#">FontAwesome</a></li>
-                        <li><a href="#">Slider</a></li>
-                        <li><a href="#">Panels</a></li>
-                        <li><a href="#">Widgets</a></li>
-                        <li><a href="#">Bootstrap Model</a></li>
+                    <ul class="sub-menu collapse" id="priceval">
+                        <li><input type='radio' name='test' value='1' checked> Cheap</li>
+                        <li><input type='radio' name='test' value='2'> Moderate</li>
+                        <li><input type='radio' name='test' value='3'> Expensive</li>
+                        <li><input type='radio' name='test' value='4'> Ultra Expensive</li>
                     </ul>
 
 
                     <li data-toggle="collapse" data-target="#service" class="collapsed">
-                        <a href="#"><i class="fa fa-globe fa-lg"></i> Services <span class="arrow"></span></a>
+                        <a href="#"><i class="fa fa-globe fa-lg"></i> Results </span></a>
                     </li>
                     <ul class="sub-menu collapse" id="service">
                         <li>New Service 1</li>
@@ -56,34 +49,27 @@
                     </ul>
 
 
-                    <li data-toggle="collapse" data-target="#new" class="collapsed">
-                        <a href="#"><i class="fa fa-car fa-lg"></i> New <span class="arrow"></span></a>
+                    <li data-toggle="collapse" data-target="#about" class="collapsed">
+                        <a href="#"><i class="fa fa-car fa-lg"></i> About </span></a>
                     </li>
-                    <ul class="sub-menu collapse" id="new">
+                    <ul class="sub-menu collapse" id="about">
                         <li>New New 1</li>
-                        <li>New New 2</li>
-                        <li>New New 3</li>
                     </ul>
 
-
-                    <li>
-                        <a href="#">
-                            <i class="fa fa-user fa-lg"></i> Profile
-                        </a>
+                    <li data-toggle="collapse" data-target="#curloc" class="collapsed">
+                        <a href="#"><i class="fa fa-car fa-lg"></i> Current location </span></a>
                     </li>
+                    <ul class="sub-menu collapse show" id="curloc">
+                        <li id="latt"></li>
+                        <li id="long"></li>
+                    </ul>
 
-                    <li>
-                        <a href="#">
-                            <i class="fa fa-users fa-lg"></i> Users
-                        </a>
-                    </li>
                 </ul>
             </div>
         </div>
     </div>
 
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDoXibmmE5_rA6jnoLne7yTrpq9HiYECbA"></script>
-    <script src="https://api.foursquare.com/v2/venues/40a55d80f964a52020f31ee3"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDoXibmmE5_rA6jnoLne7yTrpq9HiYECbA"></script>
 </body>
 </html>
