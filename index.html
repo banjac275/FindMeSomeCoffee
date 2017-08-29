@@ -3,32 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="mobile-web-app-capable" content="yes" />
-    <title>Find Me Some Coffee!</title>
+    <title>Get Us Some Coffee!</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <script src="js/maps.js"></script>
 </head>
-<body onload="getLocation()">
+<body>
 
 
 
     <div id="wrapper" class="content-wrapper">
         <div id="map"></div>
         <div class="nav-side-menu">
-            <div class="brand">Find Me Some Coffee</div>
+            <div class="brand">Get Us Some Coffee!</div>
             <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
 
             <div class="menu-list">
 
                 <ul id="menu-content" class="menu-content collapse out">
-                    <li  data-toggle="collapse" data-target="#sort" class="collapsed active">
+                    <li  data-toggle="collapse" data-target="#sort" class="collapsed">
                         <a href="#"><i class="fa fa-gift fa-lg"></i> Sorting options </span></a>
                     </li>
                     <ul class="sub-menu collapse" id="sort">
-                        <li><input id = "dist" type="checkbox" name="distance" /> Distance</li>
-                        <li data-toggle="collapse" data-target="#priceval" class="collapsed"><input id = "pric" type="checkbox" name="price" /> Price</li>
+                        <li><input id = "dist" type="checkbox" name="distance" checked/> Distance</li>
+                        <li data-toggle="collapse" data-target="#priceval" class="collapsed">
+                            <a href="#"></i><input id = "pric" type="checkbox" name="price" />Price</span></a></li>
                     </ul>
 
                     <ul class="sub-menu collapse" id="priceval">
@@ -39,10 +40,10 @@
                     </ul>
 
 
-                    <li data-toggle="collapse" data-target="#service" class="collapsed">
+                    <li data-toggle="collapse" data-target="#result" class="collapsed">
                         <a href="#"><i class="fa fa-globe fa-lg"></i> Results </span></a>
                     </li>
-                    <ul class="sub-menu collapse" id="service">
+                    <ul class="sub-menu collapsed" id="result">
                         <table class="table">
                             <thead>
                                 <tr>
@@ -64,7 +65,6 @@
                     <ul class="sub-menu collapse show" id="curloc">
                         <li id="latt"></li>
                         <li id="long"></li>
-                        <li id="upd"></li>
                     </ul>
 
                     <li data-toggle="collapse" data-target="#about" class="collapsed">

@@ -1,39 +1,157 @@
+$(document).ready(function() {
+    getPosition(true);
+
+    $("#dist").change(function() {
+        if(this.checked) {
+            $("#tab_body").empty();
+            getPosition(true);
+        }
+        else
+        {
+            $("#tab_body").empty();
+            getPosition(false);
+        }
+    });
+
+    $("#pric").change(function() {
+        if(this.checked) {
+            $("#tab_body").empty();
+            if($('#dist').is(':checked')){
+                getPosition(true);
+            }
+            else
+            {
+                getPosition(false);
+            }
+
+        }
+        else
+        {
+            $("#tab_body").empty();
+            if($('#dist').is(':checked')){
+                getPosition(true);
+            }
+            else
+            {
+                getPosition(false);
+            }
+        }
+    });
+
+        $("li").on("click",function() {
+            for(var i = 0; i<savedMarkers.length; i++){
+                if($("li").val() == savedMarkers[i].name){
+                    calculateAndDisplayRoute(savedMarkers[i]);
+                }
+            }
+
+        });
+
+
+    $("#mark").click(function() {
+        for(var i = 0; i<savedMarkers.length; i++){
+            if($("#bodyContent").val() == savedMarkers[i].name){
+                calculateAndDisplayRoute(savedMarkers[i]);
+            }
+        }
+    });
+
+});
+
+// function toggleTable() {
+//     var lTable = document.getElementById("priceval");
+//     lTable.style.display = (lTable.style.display == "table") ? "none" : "table";
+// }
 //maps
 var x;
+var coords = {};
+var savedMarkers = new Array();
 
-function getLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
-    } else {
-        x = "Geolocation is not supported by this browser.";
-        alert(x);
-    }
+function lat(callback) {
+    navigator.geolocation.getCurrentPosition(function (position) {
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        callback.call(null, lat, lon);
+    }, function (error) {
+        console.log("Something went wrong: ", error);
+    });
 }
-function showPosition(position) {
-    var latlon = { lat: position.coords.latitude, lng: position.coords.longitude};
 
-    document.getElementById("latt").innerHTML = "Latitude: "+position.coords.latitude;
-    document.getElementById("long").innerHTML = "Longitude: "+position.coords.longitude;
+function getPosition(check) {
+    lat(function (latitude, longitude) {
+        var latlon = { lat: latitude, lng: longitude};
+        document.getElementById("latt").innerHTML = "Latitude: "+latitude;
+        document.getElementById("long").innerHTML = "Longitude: "+longitude;
+        coords = {lat: latitude,lng: longitude};
+        //alert("lat: " + latitude + ", lon: " + longitude);
+        var val = latitude+","+longitude;
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 15,
+            center: latlon
+        });
+
+        var marker = new google.maps.Marker({
+            position: latlon,
+            map: map
+        });
+
+        var circle = new google.maps.Circle({
+            map: map,
+            radius: 1000,    // 10 miles in metres
+            fillColor: '#B5F3FF'
+        });
+        circle.bindTo('center', marker, 'position');
+        getCaffeeInfo(val, check);
+    });
+}
+function showShopPosition(multiple){
 
     var map = new google.maps.Map(document.getElementById('map'), {
         zoom: 15,
-        center: latlon
+        center: coords
     });
 
-    var marker = new google.maps.Marker({
-        position: latlon,
+    var marker1 = new google.maps.Marker({
+        position: coords,
         map: map
     });
-
     var circle = new google.maps.Circle({
         map: map,
         radius: 1000,    // 10 miles in metres
         fillColor: '#B5F3FF'
     });
-    circle.bindTo('center', marker, 'position');
-    var val = position.coords.latitude+","+position.coords.longitude;
-    getCaffeeInfo(val);
+    circle.bindTo('center', marker1, 'position');
+
+    for (index in multiple)
+    {
+        savedMarkers[multiple[index].name] = addMarker(map,multiple[index]);
+    }
+
 }
+
+function addMarker(map, data) {
+    //create the markers
+    var marker = new google.maps.Marker({
+        position: new google.maps.LatLng(data.lat, data.lng),
+        map: map,
+        title: data.name
+    });
+
+    var contentString = '<div id="content" class="infowindow_link">'+'<div id="siteNotice">'+'</div>'+'<div id="bodyContent">'+'<p>'+data.name+'</p>'
+    +'<a href="#" id="mark">Directions...</a>'+'</div>'+'</div>';
+
+    var infowindow = new google.maps.InfoWindow({
+        enableEventPropagation: true,
+        content: contentString
+    });
+
+    // Open the infowindow on marker click
+    google.maps.event.addListener(marker, "click", function() {
+        infowindow.open(map, marker);
+    });
+    return marker;
+}
+
 function showError(error) {
     switch(error.code) {
         case error.PERMISSION_DENIED:
@@ -55,28 +173,7 @@ function showError(error) {
     }
 }
 
-function lat(callback) {
-    navigator.geolocation.getCurrentPosition(function (position) {
-        var lat = position.coords.latitude;
-        var lon = position.coords.longitude;
-        callback.call(null, lat, lon);
-    }, function (error) {
-        console.log("Something went wrong: ", error);
-    });
-}
 
-function getPosition(check) {
-    lat(function (latitude, longitude) {
-        document.getElementById("latt").innerHTML = "Latitude: "+latitude;
-        document.getElementById("long").innerHTML = "Longitude: "+longitude;
-        var theDate = Date.now();
-        var dateString = theDate.toUTCString();
-        document.getElementById("upd").innerHTML = dateString;
-        //alert("lat: " + latitude + ", lon: " + longitude);
-        var val = latitude+","+longitude;
-        getCaffeeInfo(val, check);
-    });
-}
 
 //sidebar
 var resizing = false;
@@ -109,30 +206,16 @@ function detachElements() {
 }
 
 //foursquare
-function getDistance(lat, long) {
-    navigator.geolocation.getCurrentPosition(
-        function(position) {
-            var latLngA = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
-            var latLngB = new google.maps.LatLng(lat, long);
-            var distance = google.maps.geometry.spherical.computeDistanceBetween(latLngA, latLngB);
-            return distance;
-        },
-        function() {
-            alert("geolocation not supported!!");
-        }
-    );
-}
-
 function getCaffeeInfo(latlon, check){
     var priceEnable = 0;
-    var distanceEnable = false;
-
-    document.getElementById("dist").checked = check;
+    var distanceEnable = true;
+    document.getElementById("dist").checked == check;
     //var userLoc = latlon;
 
     if(document.getElementById("pric").checked == true)
     {
         document.getElementById("priceval").style.visibility = 'visible';
+        $('#pric').addClass('collapsed');
         var radios = document.getElementsByName("test");
         for(var i = 0, length = radios.length; i<length; i++){
             if(radios[i].checked){
@@ -154,35 +237,50 @@ function getCaffeeInfo(latlon, check){
     //var locate = userLoc;
 
     $.post('php/page.php', { distance: distanceEnable, price: priceEnable, position: latlon  }, function(data) {
-        document.getElementById('tab_body').innerHTML = data;
-        //var jsonp = JSON.parse(data);
-        //alert(data);
+        var jsonp = JSON.parse(data);
+        var temp, j = 1, i = 0,arr = [];
+        for(var i = 0; i<jsonp.length;i++){
+            var photos = jsonp[i].venue.photos.count;
+            var name = jsonp[i].venue.name;
+            var dist = jsonp[i].venue.location.distance;
+            temp ='<tr><th scope="row">'+j+'</th><td>'+photos+'</td><a href="#"><td>'+name+'</td></span></a><td>'+dist+'</td></tr>';
+            $("#tab_body").append(temp);
+            arr.push({name: name, lat: jsonp[i].venue.location.lat, lng: jsonp[i].venue.location.lng});
+
+            j = j +1;
+        }
+        $("#result").addClass("show");
+        $("#result").removeClass("show");
+        showShopPosition(arr);
     });
 }
 
-function calculateAndDisplayRoute(directionsService, directionsDisplay, pointA, pointB) {
-    directionsService.route({
-        origin: pointA,
-        destination: pointB,
-        travelMode: google.maps.TravelMode.DRIVING
-    }, function(response, status) {
-        if (status == google.maps.DirectionsStatus.OK) {
-            directionsDisplay.setDirections(response);
-        } else {
-            window.alert('Directions request failed due to ' + status);
+function calculateAndDisplayRoute(endDest){
+    var directionsDisplay = new google.maps.DirectionsRenderer();
+    var directionsService = new google.maps.DirectionsService();
+
+    var start = new google.maps.LatLng(coords.lat,coords.lng);
+    var stop = new google.maps.LatLng(endDest.lat,endDest.lng);
+
+    var mapOptions = {
+        zoom: 16,
+        center: start
+    };
+
+    var map = new google.maps.Map(document.getElementById("#map"), mapOptions);
+
+    directionsDisplay.setMap(map);
+
+    var request = {
+        origin: start,
+        destination: stop,
+        travelMode: 'DRIVING'
+    }
+
+    directionsService.route(request,function (result,status) {
+        if(status == "OK"){
+            directionsDisplay.setDirections(result);
         }
-    });
+    })
 }
-
-$(document).ready(function() {
-    getPosition();
-
-    $("#dist").on("click", function(){
-        if(distance.checked) {
-            alert("Checkbox is checked.");
-        } else {
-            alert("Checkbox is unchecked.");
-        }
-    });
-});
 

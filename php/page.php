@@ -44,28 +44,7 @@ $json_results = json_decode($results, true);
 
 $groups = $json_results['response']['groups'];
 $items = $groups['0']['items'];
-$venues = $items['0']['venue'];
-//print_r($items);
-$i = 1; $j = 0;
-foreach($items as $item){
-    echo '<tr>';
-    echo '<th scope="row">';
-    echo $i;
-    echo '</th>';
-    echo '<td>';
-    if($items[$j]['venue']['photos']['count'] != 0){
-        print_r($items[$j]['venue']['photos']);
-    }
-    echo '</td>';
-    echo '<td>';
-    print_r($items[$j]['venue']['name']);
-    echo '</td>';
-    echo '<td>';
-    print_r($items[$j]['venue']['location']['lat']);
-    echo ',';
-    print_r($items[$j]['venue']['location']['lng']);
-    echo '</td>';
-    echo '</tr>';
-    $i = $i+1;
-    $j = $j+1;
-}
+$json = json_encode($items);
+
+print_r($json);
+
