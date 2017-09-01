@@ -38,14 +38,21 @@ $(document).ready(function() {
         }
     });
 
-        $("li").on("click",function() {
-            for(var i = 0; i<savedMarkers.length; i++){
-                if($("li").val() == savedMarkers[i].name){
-                    calculateAndDisplayRoute(savedMarkers[i]);
-                }
-            }
+    $("#res tr").click(function() {
+        var selected = $(this).hasClass("highlight");
+        $("#res tr").removeClass("highlight");
+        if(!selected)
+            $(this).addClass("highlight");
+    });
 
-        });
+        // $("#tab_body tr").on("click",function() {
+        //     for(var i = 0; i<savedMarkers.length; i++){
+        //         if($("#tab_body tr").val() == savedMarkers[i].name){
+        //             calculateAndDisplayRoute(savedMarkers[i]);
+        //         }
+        //     }
+        //
+        // });
 
 
     $("#mark").click(function() {
@@ -138,7 +145,7 @@ function addMarker(map, data) {
     });
 
     var contentString = '<div id="content" class="infowindow_link">'+'<div id="siteNotice">'+'</div>'+'<div id="bodyContent">'+'<p>'+data.name+'</p>'
-    +'<a href="#" id="mark">Directions...</a>'+'</div>'+'</div>';
+    +'<a href="#" id="mark" onclick="geocodeLatLng(\'' + data + '\')">Directions...</a>'+'</div>'+'</div>';
 
     var infowindow = new google.maps.InfoWindow({
         enableEventPropagation: true,
@@ -240,47 +247,73 @@ function getCaffeeInfo(latlon, check){
         var jsonp = JSON.parse(data);
         var temp, j = 1, i = 0,arr = [];
         for(var i = 0; i<jsonp.length;i++){
-            var photos = jsonp[i].venue.photos.count;
-            var name = jsonp[i].venue.name;
-            var dist = jsonp[i].venue.location.distance;
-            temp ='<tr><th scope="row">'+j+'</th><td>'+photos+'</td><a href="#"><td>'+name+'</td></span></a><td>'+dist+'</td></tr>';
+            var photos = jsonp[i].photos[i].prefix+"50x50"+jsonp[i].photos[i].suffix;
+            var name = jsonp[i].name;
+            var dist = jsonp[i].distance;
+            temp ='<tr><th scope="row">'+j+'</th><td><img src="'+photos+'"></td><a href="#"><td>'+name+'</td></span></a><td>'+dist+'</td></tr>';
             $("#tab_body").append(temp);
-            arr.push({name: name, lat: jsonp[i].venue.location.lat, lng: jsonp[i].venue.location.lng});
+            arr.push({name: name, lat: jsonp[i].lat, lng: jsonp[i].lng});
 
             j = j +1;
         }
         $("#result").addClass("show");
         $("#result").removeClass("show");
         showShopPosition(arr);
+        console.log(jsonp);
     });
 }
 
-function calculateAndDisplayRoute(endDest){
+function calculateAndDisplayRoute(stop){
     var directionsDisplay = new google.maps.DirectionsRenderer();
     var directionsService = new google.maps.DirectionsService();
 
-    var start = new google.maps.LatLng(coords.lat,coords.lng);
-    var stop = new google.maps.LatLng(endDest.lat,endDest.lng);
+    var start = new google.maps.LatLng(parseFloat(coords.lat),parseFloat(coords.lng));
+    //var stop = new google.maps.LatLng(parseFloat(endDest.lat),parseFloat(endDest.lng));
+    console.log(stop);
 
     var mapOptions = {
         zoom: 16,
         center: start
     };
 
-    var map = new google.maps.Map(document.getElementById("#map"), mapOptions);
+    //var returned = geocodeLatLng(geocoder, stop);
+
+    var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
     directionsDisplay.setMap(map);
 
     var request = {
         origin: start,
         destination: stop,
-        travelMode: 'DRIVING'
-    }
+        travelMode: 'WALKING'
+    };
 
     directionsService.route(request,function (result,status) {
+        console.log(status);
         if(status == "OK"){
             directionsDisplay.setDirections(result);
         }
-    })
+    });
 }
 
+function geocodeLatLng(endDest) {
+    var geocoder = new google.maps.Geocoder();
+    //var input = document.getElementById('latlng').value;
+    //var latlngStr = input.split(',', 2);
+    var latlng = new google.maps.LatLng(parseFloat(endDest.lat),parseFloat(endDest.lng));
+    console.log(latlng);
+    geocoder.geocode({'location': latlng}, function(results, status) {
+        if (status === 'OK') {
+            if (results[0]) {
+                console.log(results[0].formatted_address);
+                // infowindow.setContent(results[0].formatted_address);
+                // infowindow.open(map, marker);
+                calculateAndDisplayRoute(results[0].formatted_address);
+            } else {
+                window.alert('No results found');
+            }
+        } else {
+            window.alert('Geocoder failed due to: ' + status);
+        }
+    });
+}

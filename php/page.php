@@ -17,6 +17,8 @@ $dateObj= date('Ymd');
 $base_url = 'https://api.foursquare.com/v2/';
 $end_point_search = 'venues/search?';
 $end_point_explore = 'venues/explore?';
+$end_point_photos = 'venues/';
+$photo_tag = '/photos?';
 $radius = 1000;
 $limit = 10;
 $intent = "browse";
@@ -26,6 +28,7 @@ $distanceSort = 1;
 $section = "coffee";
 $auth = "client_id=$clientID&client_secret=$clientSecret&v=$dateObj";
 $url;
+$url_photo;
 
 if($priceEnable == 0 && $distanceEnable == false){
         $url = "$base_url$end_point_explore$auth&ll=$userLoc&radius=$radius&limit=$limit&section=$section&openNow=$openNow";
@@ -44,7 +47,43 @@ $json_results = json_decode($results, true);
 
 $groups = $json_results['response']['groups'];
 $items = $groups['0']['items'];
-$json = json_encode($items);
+//$json = json_encode($items);
 
-print_r($json);
-
+//pravi niz dobijenih id-jeva
+$id_array = array();
+foreach ($items as $item)
+{
+    $id_array[] = $item['venue']['id'];
+}
+//uzima fotografije
+$photo_array = array();
+foreach ($id_array as $id)
+{
+    $url_photo = "$base_url$end_point_photos$id$photo_tag$auth&limit=$limit";
+    $photo_res = file_get_contents($url_photo);
+    $dec_res = json_decode($photo_res, true);
+    $photo_array[] = $dec_res['response']['photos']['items'];
+}
+//pravi novi json sa potrebnim podacima
+$return_new_array = array();
+foreach ($items as $item)
+{
+    $photos_ex = array();
+    foreach ($photo_array['0'] as $photos)
+    {
+        $photos_ex[] = array ("prefix" => $photos['prefix'],
+            "suffix" => $photos['suffix'],
+            "width" => $photos['width'],
+            "height" => $photos['height']);
+    }
+    $return_new_array[] = array("name" => $item['venue']['name'],
+        "photos" => $photos_ex,
+        "price" => $item['venue']['price'],
+        "lat" => $item['venue']['location']['lat'],
+        "lng" => $item['venue']['location']['lng'],
+        "distance" => $item['venue']['location']['distance'],
+        "tips" => $item['tips']);
+}
+//print_r($json);
+//print_r($items);
+print_r(json_encode($return_new_array));
