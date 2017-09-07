@@ -66,10 +66,11 @@ foreach ($id_array as $id)
 }
 //pravi novi json sa potrebnim podacima
 $return_new_array = array();
+$i = 0;
 foreach ($items as $item)
 {
     $photos_ex = array();
-    foreach ($photo_array['0'] as $photos)
+    foreach ($photo_array[$i] as $photos)
     {
         $photos_ex[] = array ("prefix" => $photos['prefix'],
             "suffix" => $photos['suffix'],
@@ -83,6 +84,8 @@ foreach ($items as $item)
         "lng" => $item['venue']['location']['lng'],
         "distance" => $item['venue']['location']['distance'],
         "tips" => $item['tips']);
+
+    $i = $i + 1;
 }
 //print_r($json);
 //print_r($items);

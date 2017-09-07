@@ -73,6 +73,7 @@ $(document).ready(function() {
 var x;
 var coords = {};
 var savedMarkers = new Array();
+var resultJson;
 
 function lat(callback) {
     navigator.geolocation.getCurrentPosition(function (position) {
@@ -144,8 +145,12 @@ function addMarker(map, data) {
         title: data.name
     });
 
-    var contentString = '<div id="content" class="infowindow_link">'+'<div id="siteNotice">'+'</div>'+'<div id="bodyContent">'+'<p>'+data.name+'</p>'
-    +'<a href="#" id="mark" onclick="geocodeLatLng(\'' + data + '\')">Directions...</a>'+'</div>'+'</div>';
+    console.log(data);
+
+    var contentString = '<div id="content" class="infowindow_link">'+'<div id="siteNotice">'+'</div>'+'<div id="bodyContent">'+
+        '<p>'+data.name+'</p>'
+    +'<ul><li><a href="#" id="mark" onclick="geocodeLatLng(\'' + data.lat +'\',\'' + data.lng + '\')">Directions...</a></li>'+
+        '<li><a href="#" id="information" onclick="displayInfo(\'' + data.name + '\')">Show Info</a></li></ul>'+'</div>'+'</div>';
 
     var infowindow = new google.maps.InfoWindow({
         enableEventPropagation: true,
@@ -245,7 +250,9 @@ function getCaffeeInfo(latlon, check){
 
     $.post('php/page.php', { distance: distanceEnable, price: priceEnable, position: latlon  }, function(data) {
         var jsonp = JSON.parse(data);
-        var temp, j = 1, i = 0,arr = [];
+        resultJson = jsonp;
+        console.log(jsonp);
+        var temp, j = 1,arr = [];
         for(var i = 0; i<jsonp.length;i++){
             var photos = jsonp[i].photos[i].prefix+"50x50"+jsonp[i].photos[i].suffix;
             var name = jsonp[i].name;
@@ -259,7 +266,6 @@ function getCaffeeInfo(latlon, check){
         $("#result").addClass("show");
         $("#result").removeClass("show");
         showShopPosition(arr);
-        console.log(jsonp);
     });
 }
 
@@ -296,15 +302,16 @@ function calculateAndDisplayRoute(stop){
     });
 }
 
-function geocodeLatLng(endDest) {
+function geocodeLatLng(lat, lng) {
     var geocoder = new google.maps.Geocoder();
     //var input = document.getElementById('latlng').value;
     //var latlngStr = input.split(',', 2);
-    var latlng = new google.maps.LatLng(parseFloat(endDest.lat),parseFloat(endDest.lng));
+    var latlng = new google.maps.LatLng(parseFloat(lat),parseFloat(lng));
     console.log(latlng);
     geocoder.geocode({'location': latlng}, function(results, status) {
         if (status === 'OK') {
             if (results[0]) {
+                console.log(results[0].formatted_address);
                 console.log(results[0].formatted_address);
                 // infowindow.setContent(results[0].formatted_address);
                 // infowindow.open(map, marker);
@@ -316,4 +323,23 @@ function geocodeLatLng(endDest) {
             window.alert('Geocoder failed due to: ' + status);
         }
     });
+}
+
+function displayInfo(markerData){
+    for(var i = 0; i<resultJson.length;i++){
+        //var photos = jsonp[i].photos[i].prefix+"50x50"+jsonp[i].photos[i].suffix;
+        var name = resultJson[i].name;
+        //console.log(markerData);
+        if(name == markerData)
+        {
+            console.log(name);
+            $("#dimScreen").css("display","initial");
+        }
+        //var dist = jsonp[i].distance;
+
+        //$("#tab_body").append(temp);
+        //arr.push({name: name, lat: jsonp[i].lat, lng: jsonp[i].lng});
+
+
+    }
 }
