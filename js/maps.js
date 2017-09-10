@@ -45,6 +45,10 @@ $(document).ready(function() {
             $(this).addClass("highlight");
     });
 
+    $("#close_info").click(function() {
+        $("#dimScreen").css("display","none");
+    });
+
         // $("#tab_body tr").on("click",function() {
         //     for(var i = 0; i<savedMarkers.length; i++){
         //         if($("#tab_body tr").val() == savedMarkers[i].name){
@@ -332,8 +336,37 @@ function displayInfo(markerData){
         //console.log(markerData);
         if(name == markerData)
         {
-            console.log(name);
+            //console.log(name);
+            $("#first").empty();
+            $("#loc_data").empty();
             $("#dimScreen").css("display","initial");
+            var photo = resultJson[i].photos[0].prefix+"600x400"+resultJson[i].photos[0].suffix;
+            var tier = resultJson[i].price.tier;
+            console.log(tier);
+            var range = resultJson[i].price.message;
+            console.log(range);
+            var distance = resultJson[i].distance;
+            console.log(distance);
+            var tips = resultJson[i].tips[0].text;
+            console.log(tips);
+            var write = '<div>Price tier: '+tier+' Price range: '+range+
+                '</div><div>Place name: '+name+
+                '</div><div>Distance: '+distance+
+                '</div><div>Tips: '+tips+'</div>';
+            $("#loc_data").append(write);
+            var active ='<img src="'+photo+'" >';
+            $("#first").append(active);
+
+            for(var j = 1;j<=10;j++)
+            {
+                var photos = resultJson[i].photos[j].prefix+"600x400"+resultJson[i].photos[j].suffix;
+                var active ='<div class="item"><img src="'+photos+'" ></div>';
+                console.log(photos);
+                $("#inner").append(active);
+            }
+
+
+
         }
         //var dist = jsonp[i].distance;
 
